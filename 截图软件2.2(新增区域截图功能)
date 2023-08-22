@@ -114,7 +114,7 @@ vedio.triggered.connect(
 
 github = QAction("github", window)
 github.triggered.connect(
-    lambda: qzy_1("https://github.com/Qzy327422/qianzeyang/blob/61669ae9c513ebb439fa987c6713da1ec8f1f1e0/%E6%88%AA%E5%9B%BE%E8%BD%AF%E4%BB%B62.2"))
+    lambda: qzy_1("https://github.com/Qzy327422/jie-tu-ruan-jian-"))
 
 qzy_11.addAction(new_action)
 qzy_11.addAction(vedio)
