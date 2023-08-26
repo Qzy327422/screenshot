@@ -1,0 +1,230 @@
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QMenu, QAction, QVBoxLayout, QWidget, QFileDialog, QLabel, QMessageBox
+from PyQt5.QtGui import QPixmap, QPalette, QBrush
+from PyQt5.QtCore import QObject, pyqtSignal, Qt
+import pyautogui
+import os
+import datetime
+import webbrowser
+import keyboard
+import sys
+
+qzy_3 = ""
+qzy_2 = True
+
+def re():
+    script_path = os.path.abspath(__file__)
+    script_name = os.path.basename(script_path)
+
+    os.execv(sys.executable, ['python', script_name])
+
+def path():
+    with open("qzy_配置文件_保存目录.ini", 'r', encoding='utf-8') as path1:
+        path2 = path1.readline()
+    global qzy_2, qzy_3
+
+    directory = (path2)
+    qzy_3 = directory
+    qzy_5.setText("截图保存路径：" + directory)
+
+def qzy_background():
+    global qzy_2, qzy_3
+    qzy_2 = True
+    options = QFileDialog.Options()
+    options |= QFileDialog.DontUseNativeDialog
+    backgroundpath, _ = QFileDialog.getOpenFileName(window, "选择背景图片后程序自动重启   推荐背景图片大小：400, 357   在此界面点击cancel即可清空背景", "", "图片文件 (*.png *.jpg *.jpeg)", options=options)
+    with open("qzy_配置文件_背景目录.ini", 'w', encoding='utf-8') as path:
+        path.write(backgroundpath)
+    re()
+
+
+
+
+def qzy_1(url):
+    webbrowser.open(url)
+
+
+def qzy_4():
+    global qzy_2, qzy_3
+    qzy_2 = True
+    directory = QFileDialog.getExistingDirectory(window, "选择保存路径")
+    if directory:
+        qzy_3 = directory
+        qzy_5.setText("截图保存路径：" + directory)
+    with open("qzy_配置文件_保存目录.ini", 'w', encoding='utf-8') as path:
+        path.write(directory)
+
+
+
+def qzy_6():
+    if qzy_3:
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M%S")
+        filename = f"qzy-截图_{timestamp}.png"
+        file_path = os.path.join(qzy_3, filename)
+        screenshot = pyautogui.screenshot()
+        screenshot.save(file_path)
+
+
+class Worker(QObject):
+    finished = pyqtSignal()
+
+    def run(self):
+        qzy_6()
+        self.finished.emit()
+
+
+def qzy_2():
+    worker = Worker()
+    worker.finished.connect(qzy_7)
+    worker.run()
+
+
+def qzy_7():
+    pass
+
+
+def qzy_8():
+    app.quit()
+
+def qzy_114():
+    window.setWindowTitle("按alt选第一点")
+    keyboard.wait('alt')
+    x1, y1 = pyautogui.position()
+    window.setWindowTitle("按alt选第二点")
+    keyboard.wait('alt')
+    window.setWindowTitle("截图-by qzy")
+
+    x2, y2 = pyautogui.position()
+    regio = (x1, y1, x2 ,y2)
+
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d_%H%M%S")
+    filename = f"qzy-截图_{timestamp}.png"
+    file_path = os.path.join(qzy_3, filename)
+
+    screenshot = pyautogui.screenshot(region=regio)
+    screenshot.save(file_path)
+
+
+def qzy_9():
+    msg_box = QMessageBox()
+    msg_box.setText("啥都木有")
+    msg_box.exec_()
+
+
+
+
+
+app = QApplication([])
+
+window = QMainWindow()
+window.setWindowTitle("截图-by qzy")
+window.setGeometry(100, 100, 400, 300)
+window.setFixedSize(400, 357)
+
+def set_background_image():
+    with open("qzy_配置文件_背景目录.ini", 'r', encoding='utf-8') as path3:
+        backgroundpath = (path3.readline())
+
+    background_path = backgroundpath
+    pixmap = QPixmap(background_path)
+    palette = window.palette()
+    palette.setBrush(QPalette.Window, QBrush(pixmap))
+    window.setPalette(palette)
+
+#########################################
+file_path11 = "qzy_配置文件_背景目录.ini"
+def check11():
+    if os.path.exists(file_path11):
+        return file_path11
+    else:
+        return None
+
+result11 = check11()
+if result11 is not None:
+    with open("qzy_配置文件_背景目录.ini", 'r', encoding='utf-8') as kong:
+        kong1 = (kong.readline())
+
+
+    if 'ini' in kong1:
+
+        set_background_image()
+
+
+
+
+central_widget = QWidget(window)
+layout = QVBoxLayout(central_widget)
+
+qzy_5 = QLabel("截图保存路径：")
+
+layout.addWidget(qzy_5)
+
+
+
+layout.setAlignment(Qt.AlignTop)
+
+def check():
+    if os.path.exists(file_path):
+        return file_path
+    else:
+        return None
+
+
+file_path = "qzy_配置文件_保存目录.ini"
+result = check()
+if result is not None:
+    path()
+if result is None:
+    msg_box = QMessageBox()
+    msg_box.setText("截图软件 版本v3.1 更新日期8/26\n在目录下会产生配置文件用于保存数据，你可以自行更改路径\n更新内容：新增程序自动重启功能")
+    msg_box.exec_()
+
+
+
+button_data = [
+    {"text": "全屏截图", "function": qzy_2},
+    {"text": "区域截图(alt键选点)", "function": qzy_114},
+    {"text": "选择保存路径", "function": qzy_4},
+    {"text": "退出", "function": qzy_8}
+]
+for data in button_data:
+    button = QPushButton(data["text"])
+    button.clicked.connect(data["function"])
+    button.setStyleSheet("background-color: rgba(255, 255, 255, 0.7);")
+
+    layout.addWidget(button)
+    button.setFixedHeight(70)
+window.setCentralWidget(central_widget)
+qzy_10 = window.menuBar()
+qzy_11 = qzy_10.addMenu("简介")
+new_action = QAction("作者：qzy Q：3152379317", window)
+new_action.triggered.connect(lambda: qzy_1("http://3152379317.qzone.qq.com"))
+vedio = QAction("视频简介", window)
+vedio.triggered.connect(lambda: qzy_1("https://www.bilibili.com/video/BV1Hh4y1U7LV?vd_source=08989ea94617e90ca21f6bc1bb64668b"))
+github = QAction("github", window)
+github.triggered.connect(lambda: qzy_1("https://github.com/Qzy327422/jie-tu-ruan-jian-"))
+qzy_11.addAction(new_action)
+qzy_11.addAction(vedio)
+qzy_11.addAction(github)
+edit_menu = qzy_10.addMenu("选项")
+background = QAction("背景图片", window)
+restart_action = QAction("重启程序", window) 
+cut_action = QAction("待添加", window)
+
+background.triggered.connect(qzy_background)
+restart_action.triggered.connect(re)
+cut_action.triggered.connect(qzy_9)
+
+edit_menu.addAction(background)
+edit_menu.addAction(restart_action)  
+edit_menu.addAction(cut_action)
+
+
+
+
+
+#set_background_image()
+
+window.show()
+app.exec_()
